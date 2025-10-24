@@ -1,11 +1,25 @@
 import re
+import utils
+from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 
-def scraper(url, resp):
+def scraper(url : str, resp : utils.response.Response):
+    '''Takes in the root url, extracts all immediate hyper links from the html data from extract_next_links, '''
     links = extract_next_links(url, resp)
+    # Iterates over list of links (str) and returns the string if it is valid
     return [link for link in links if is_valid(link)]
 
-def extract_next_links(url, resp):
+
+
+
+
+
+# *.ics.uci.edu/*
+# *.cs.uci.edu/*  
+# *.informatics.uci.edu/* 
+# *.stat.uci.edu/*
+
+def extract_next_links(url, resp) -> list:
     # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
@@ -15,7 +29,20 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    return list()
+
+    res = []
+
+    # Transforms raw html data into a beautiful soup
+    data = BeautifulSoup(resp.raw_response.content, "lxml")
+
+    # Parses the new data for all 'a' html tags
+    all_links = data.find_all("a")
+
+    # Extracts links from the entire 'a' tags
+    for tag in all_links:
+        res.append(tag.get('href'))
+
+    return res
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
@@ -25,6 +52,9 @@ def is_valid(url):
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
             return False
+        if not any(parsed.netloc.endswith(domain) for domain in set(["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"])):
+            return False
+    
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
@@ -38,3 +68,14 @@ def is_valid(url):
     except TypeError:
         print ("TypeError for ", parsed)
         raise
+
+
+# Hi guys
+# Run the crawler as is, see what outputs we get and compare and see what we should do
+# The is valid is like a filter, filters out unwanted sites and values
+# dont worry about robots.txt (assuming it alr does that)
+
+# The way to solve multithreading is to have a centralized frontier management
+# separate part of program that handles frontier, the crawlers come to this frontier for URL, the frontier uses its own logic to give out urls
+# Notes I took during class while half asleep
+# Ion think it should be "IR RF25 {our UCI-ID} ..."
