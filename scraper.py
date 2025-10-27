@@ -1,7 +1,9 @@
 import re
 import utils
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
+
+seen = set()
 
 def scraper(url : str, resp : utils.response.Response):
     '''Takes in the root url, extracts all immediate hyper links from the html data from extract_next_links, '''
@@ -40,7 +42,10 @@ def extract_next_links(url, resp) -> list:
 
     # Extracts links from the entire 'a' tags
     for tag in all_links:
-        res.append(tag.get('href'))
+        href = tag.get('href')
+        if href:
+            absolute_url = urljoin(url, href)
+            res.append(absolute_url)
 
     return res
 
@@ -48,13 +53,25 @@ def is_valid(url):
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
+
+    global seen
+
     try:
+
+        url = url.lower()
+        
+        if url in seen:
+            return False
+
         parsed = urlparse(url)
+        
         if parsed.scheme not in set(["http", "https"]):
             return False
         if not any(parsed.netloc.endswith(domain) for domain in set(["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"])):
             return False
     
+        seen.add(url)
+
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
