@@ -5,7 +5,7 @@ from urllib.parse import urlparse, urljoin
 
 seen = set()
 
-def scraper(url : str, resp : utils.response.Response):
+def scraper(url, resp):
     '''Takes in the root url, extracts all immediate hyper links from the html data from extract_next_links, '''
     links = extract_next_links(url, resp)
     # Iterates over list of links (str) and returns the string if it is valid
