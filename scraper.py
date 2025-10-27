@@ -35,19 +35,22 @@ def extract_next_links(url, resp) -> list:
     res = []
 
     # Transforms raw html data into a beautiful soup
-    data = BeautifulSoup(resp.raw_response.content, "lxml")
+    try:
+        data = BeautifulSoup(resp.raw_response.content, "lxml")
 
-    # Parses the new data for all 'a' html tags
-    all_links = data.find_all("a")
+        # Parses the new data for all 'a' html tags
+        all_links = data.find_all("a")
 
-    # Extracts links from the entire 'a' tags
-    for tag in all_links:
-        href = tag.get('href')
-        if href:
-            absolute_url = urljoin(url, href)
-            res.append(absolute_url)
+        # Extracts links from the entire 'a' tags
+        for tag in all_links:
+            href = tag.get('href')
+            if href:
+                absolute_url = urljoin(url, href)
+                res.append(absolute_url)
 
-    return res
+        return res
+    except Exception as ex:
+        print("\n\nERROR ENCOUNTERED\n\n" , ex)
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
