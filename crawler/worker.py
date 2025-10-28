@@ -66,7 +66,7 @@ class Worker(Thread):
         # removing stopwords from word frequencies
         clean_freqs = {
             word: count
-            for word, count in self.word_frequencies.items()
+            for word, count in self.global_word_frequencies.items()
             if word not in stopwords
         }
         # can make "and word.isalpha()" if numbers are non-valid for "words"
