@@ -80,7 +80,7 @@ def is_valid(url):
         if parsed.scheme not in set(["http", "https"]):
             return False
 
-        if url.hostname not in allowed_domains:
+        if parsed.hostname not in allowed_domains:
             return False
     
         seen.add(url)
