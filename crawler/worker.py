@@ -13,10 +13,9 @@ class Worker(Thread):
         self.config = config
         self.frontier = frontier
 
-        
         self.seen_pages = set()
         self.seen_subdomains = dict()
-        self.word_frequencies = dict()
+        self.global_word_frequencies = dict()
         self.max_words = 0
 
         # basic check for requests in scraper
@@ -34,7 +33,7 @@ class Worker(Thread):
             self.logger.info(
                 f"Downloaded {tbd_url}, status <{resp.status}>, "
                 f"using cache {self.config.cache_server}.")
-            scraped_urls = scraper.scraper(tbd_url, resp, seen_pages, seen_subdomains, word_frequencies, max_words)
+            scraped_urls = scraper.scraper(tbd_url, resp, seen_pages, seen_subdomains, global_word_frequencies, max_words)
             for scraped_url in scraped_urls:
                 self.frontier.add_url(scraped_url)
             self.frontier.mark_url_complete(tbd_url)

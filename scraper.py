@@ -5,7 +5,7 @@ from urllib.parse import urlparse, urljoin, urldefrag
 
 allowed_domains = {"ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu", }
 
-def scraper(url, resp, seen_pages, seen_subdomains, word_frequencies, max_words):
+def scraper(url, resp, seen_pages, seen_subdomains, global_word_frequencies, max_words):
     '''Takes in the root url, extracts all immediate hyper links from the html data from extract_next_links, '''
     links = extract_next_links(url, resp, word_frequencies, max_words)
     # Iterates over list of links (str) and returns the string if it is valid
@@ -13,7 +13,7 @@ def scraper(url, resp, seen_pages, seen_subdomains, word_frequencies, max_words)
 
 
 
-def extract_next_links(url, resp, word_frequencies, max_words):
+def extract_next_links(url, resp, global_word_frequencies, max_words):
     # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
@@ -51,11 +51,22 @@ def extract_next_links(url, resp, word_frequencies, max_words):
 
         #Count words and frequencies
 
+        #Local word_frequency for individual page for simhash
+        
+        local_word_frequency = dict()
+
         text = soup.get_text(separator=' ')
         tokens = re.split(r'[^a-zA-Z0-9]+', text.lower())
         tokens = [t for t in tokens if t]
         for token in tokens:
-            word_frequencies[token] = word_frequencies.get(token, 0) + 1
+            global_word_frequencies[token] = global_word_frequencies.get(token, 0) + 1
+            local_word_frequencies[token] = local_word_frequencies.get(token, 0) + 1
+
+        #get finger print, add to stored set of finger prints, if it is similar (hamming distance), 
+        # return empty list to not append links
+        fingerprint = getFingerprint(local_word_frequencies)
+
+        # TODO: IMPLMEMENT HAMMING DISTANCE CHECK
 
         max_words = max(max_words, len(tokens))
 
@@ -109,6 +120,41 @@ def is_valid(url, seen_pages, seen_subdomains):
     except TypeError:
         print ("TypeError for ", parsed)
         raise
+
+def getFingerprint(word_frequencies) -> str:
+
+    weighted_vector = [0] * 64
+
+    for key, value in word_frequencies.items():
+        word_hash = customHash(key, value)
+
+        for i in range(64):
+            if (h >> i) & 1:
+                weighted_vector[i] += freq
+            else:
+                weighted_vector[i] -= freq
+
+        fingerprint = 0
+        for i in range(64):
+            if vector[i] > 0:
+                fingerprint |= (1 << i)
+
+        return fingerprint
+        
+
+
+
+def customHash(word, frequency):
+    '''Hashes the word into a 64 bit hash'''
+    large_prime = 16908799
+    result = 0
+    for c in word:
+        result = (127 * result + ord(c)) % large_prime
+    
+    result = result * freq
+    result = result & 0xFFFFFFFFFFFFFFFF
+
+    return result 
 
 
 # Hi guys
