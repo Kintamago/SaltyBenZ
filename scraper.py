@@ -8,6 +8,8 @@ allowed_domains = {"ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci
 
 seen_pages = set()
 seen_subdomains = dict()
+word_frequencies = dict()
+max_words = 0
 
 def scraper(url, resp):
     '''Takes in the root url, extracts all immediate hyper links from the html data from extract_next_links, '''
@@ -28,6 +30,9 @@ def extract_next_links(url, resp):
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
 
+    global word_frequencies
+    global max_words
+
     links = [] 
 
     #only valid contents (Prints error)
@@ -40,7 +45,7 @@ def extract_next_links(url, resp):
     
     try:
         #Parse HTML content
-        soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
+        soup = BeautifulSoup(resp.raw_response.content, 'lxml')
 
         #Remove all anchor tags
         for anchor in soup.find_all('a', href=True):
@@ -52,6 +57,17 @@ def extract_next_links(url, resp):
 
             if defrag_url:
                 links.append(defrag_url)
+
+        #Count words and frequencies
+
+        text = soup.get_text(separator=' ')
+        tokens = re.split(r'[^a-zA-Z0-9]+', text.lower())
+        tokens = [t for t in tokens if t]
+        for token in tokens:
+            word_frequencies[token] = word_frequencies.get(token, 0) + 1
+
+        max_words = max(max_words, len(tokens))
+
     except Exception as e:
         print(f"There was an error extracting from {url} : {e}")
     
