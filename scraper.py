@@ -2,6 +2,9 @@ import re
 import utils
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin
+from urllib.parse import urldefrag
+
+
 
 seen = set()
 
@@ -60,8 +63,10 @@ def is_valid(url):
     global seen
 
     try:
-
-        url = url.lower()
+        # removes anchors
+        clean_url, _ = urldefrag(url)
+        url = clean_url.lower()
+        
         
         if url in seen:
             return False
