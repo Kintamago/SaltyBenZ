@@ -68,7 +68,7 @@ def extract_next_links(url, resp, global_word_frequencies, max_words):
 
         # TODO: IMPLMEMENT HAMMING DISTANCE CHECK
 
-        max_words = max(max_words, len(tokens))
+        max_words[0] = max(max_words[0], len(tokens))
 
     except Exception as e:
         print(f"There was an error extracting from {url} : {e}")
