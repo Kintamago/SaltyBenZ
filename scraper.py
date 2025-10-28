@@ -5,21 +5,15 @@ from urllib.parse import urlparse, urljoin, urldefrag
 
 allowed_domains = {"ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu", }
 
-
-seen_pages = set()
-seen_subdomains = dict()
-word_frequencies = dict()
-max_words = 0
-
-def scraper(url, resp):
+def scraper(url, resp, seen_pages, seen_subdomains, word_frequencies, max_words):
     '''Takes in the root url, extracts all immediate hyper links from the html data from extract_next_links, '''
-    links = extract_next_links(url, resp)
+    links = extract_next_links(url, resp, word_frequencies, max_words)
     # Iterates over list of links (str) and returns the string if it is valid
-    return [link for link in links if is_valid(link)]
+    return [link for link in links if is_valid(link, seen_pages, seen_subdomains)]
 
 
 
-def extract_next_links(url, resp):
+def extract_next_links(url, resp, word_frequencies, max_words):
     # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
@@ -29,9 +23,6 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-
-    global word_frequencies
-    global max_words
 
     links = [] 
 
@@ -74,14 +65,10 @@ def extract_next_links(url, resp):
     return links
 
 
-def is_valid(url):
+def is_valid(url, seen_pages, seen_subdomains):
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
-
-    global seen_pages
-    global seen_subdomains
-    
 
     try:
         # removes anchors
