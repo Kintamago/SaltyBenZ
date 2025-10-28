@@ -1,9 +1,9 @@
 import re
 import utils
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse, urljoin
-from urllib.parse import urldefrag
+from urllib.parse import urlparse, urljoin, urldefrag
 
+allowed_domains = {"ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"}
 
 
 seen = set()
@@ -63,11 +63,14 @@ def is_valid(url):
     # There are already some conditions that return False.
 
     global seen
+    
 
     try:
         # removes anchors
         clean_url, _ = urldefrag(url)
         url = clean_url.lower()
+        if url.hostname not in allowed_domains:
+            return False
         
         
         if url in seen:
@@ -77,8 +80,7 @@ def is_valid(url):
         
         if parsed.scheme not in set(["http", "https"]):
             return False
-        if not any(parsed.netloc.endswith(domain) for domain in set(["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"])):
-            return False
+
     
         seen.add(url)
 
