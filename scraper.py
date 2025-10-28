@@ -7,7 +7,7 @@ allowed_domains = {"ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci
 
 
 seen_pages = set()
-seen_subdomains = set()
+seen_subdomains = dict()
 
 def scraper(url, resp):
     '''Takes in the root url, extracts all immediate hyper links from the html data from extract_next_links, '''
@@ -71,11 +71,11 @@ def is_valid(url):
         # removes anchors
     
         url = url.lower()
-        defrag_url, _ = urldefrag(url)
-        if defrag_url in seen_pages:
+        page, _ = urldefrag(url)
+        if page in seen_pages:
             return False
 
-        parsed = urlparse(defrag_url)
+        parsed = urlparse(page)
 
         if parsed.scheme not in {"http", "https"}:
             return False
@@ -86,11 +86,12 @@ def is_valid(url):
             if not any(subdomain == d or subdomain.endswith("." + d) for d in allowed_domains):
                 print(f"DROPPED {parsed}")
                 return False
-    
-        if defrag_url:
-            seen_pages.add(defrag_url)
+                
         if subdomain:
-            seen_subdomains.add(subdomain)
+            seen_subdomains[subdomain] = seen_subdomains.get(subdomain, 0) + 1
+        if page:
+            seen_pages.add(page)
+        
 
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
