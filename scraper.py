@@ -75,7 +75,8 @@ def is_valid(url):
         if url in seen:
             return False
 
-        parsed, _ = urldefrag(urlparse(url))
+        parsed = urlparse(url)
+        defragged, _ = urldefrag(parsed)
     
         
         if parsed.scheme not in set(["http", "https"]):
