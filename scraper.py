@@ -81,6 +81,7 @@ def is_valid(url):
             return False
 
         if parsed.hostname not in allowed_domains:
+            print(f"DROPPED {parsed}")
             return False
     
         seen.add(url)
