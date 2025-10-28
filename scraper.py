@@ -6,7 +6,8 @@ from urllib.parse import urlparse, urljoin, urldefrag
 allowed_domains = {"ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu", }
 
 
-seen = set()
+seen_pages = set()
+seen_subdomains = set()
 
 def scraper(url, resp):
     '''Takes in the root url, extracts all immediate hyper links from the html data from extract_next_links, '''
@@ -62,7 +63,8 @@ def is_valid(url):
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
 
-    global seen
+    global seen_pages
+    global seen_subdomains
     
 
     try:
@@ -70,19 +72,25 @@ def is_valid(url):
     
         url = url.lower()
         defrag_url, _ = urldefrag(url)
-        if defrag_url in seen:
+        if defrag_url in seen_pages:
             return False
 
         parsed = urlparse(defrag_url)
+
         if parsed.scheme not in {"http", "https"}:
             return False
 
-        if parsed.hostname:
-            if not any(parsed.hostname == d or parsed.hostname.endswith("." + d) for d in allowed_domains):
+        subdomain = parsed.hostname
+
+        if subdomain:
+            if not any(subdomain == d or subdomain.endswith("." + d) for d in allowed_domains):
                 print(f"DROPPED {parsed}")
                 return False
     
-        seen.add(url)
+        if defrag_url:
+            seen_pages.add(defrag_url)
+        if subdomain:
+            seen_subdomains.add(subdomain)
 
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
