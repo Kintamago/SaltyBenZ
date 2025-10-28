@@ -53,7 +53,7 @@ def extract_next_links(url, resp, global_word_frequencies, max_words, fingerprin
 
         #Local word_frequency for individual page for simhash
         
-        local_word_frequency = dict()
+        local_word_frequencies = dict()
 
         text = soup.get_text(separator=' ')
         tokens = re.split(r'[^a-zA-Z0-9]+', text.lower())
