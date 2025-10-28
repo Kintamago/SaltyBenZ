@@ -53,7 +53,7 @@ def extract_next_links(url, resp) -> list:
 
         return res
     except Exception as ex:
-        print("\n\nERROR ENCOUNTERED\n\n" , ex)
+        print("\n\nERROR ENCOUNTERED at link url\n\n" , ex)
         return []
 def is_valid(url):
     # Decide whether to crawl this url or not. 
