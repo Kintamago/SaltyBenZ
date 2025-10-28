@@ -16,15 +16,7 @@ def scraper(url, resp):
 
 
 
-
-
-
-# *.ics.uci.edu/*
-# *.cs.uci.edu/*  
-# *.informatics.uci.edu/* 
-# *.stat.uci.edu/*
-
-def extract_next_links(url, resp) -> list:
+def extract_next_links(url, resp):
     # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
@@ -35,26 +27,36 @@ def extract_next_links(url, resp) -> list:
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
 
-    res = []
+    links = [] 
 
-    # Transforms raw html data into a beautiful soup
+    #only valid contents (Prints error)
+    if resp.status != 200: 
+        print(resp.error)
+        return links
+    
+    if not resp.raw_response or not resp.raw_response.content: #
+        return links
+    
     try:
-        data = BeautifulSoup(resp.raw_response.content, "lxml")
+        #Parse HTML content
+        soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
 
-        # Parses the new data for all 'a' html tags
-        all_links = data.find_all("a")
+        #Remove all anchor tags
+        for anchor in soup.find_all('a', href=True):
+            #Makes an absolute URL from relative URL
+            absolute_url = urljoin(resp.url, anchor['href'])
 
-        # Extracts links from the entire 'a' tags
-        for tag in all_links:
-            href = tag.get('href')
-            if href:
-                absolute_url = urljoin(url, href)
-                res.append(absolute_url)
+            #Remove fragments 
+            defrag_url, _ = urldefrag(absolute_url)
 
-        return res
-    except Exception as ex:
-        print(f"\n\nERROR ENCOUNTERED at {url} \n\n" , ex)
-        return []
+            if defrag_url:
+                links.append(defrag_url)
+    except Exception as e:
+        print(f"There was an error extracting from {url} : {e}")
+    
+    return links
+
+
 def is_valid(url):
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
@@ -104,3 +106,4 @@ def is_valid(url):
 # separate part of program that handles frontier, the crawlers come to this frontier for URL, the frontier uses its own logic to give out urls
 # Notes I took during class while half asleep
 # Ion think it should be "IR RF25 {our UCI-ID} ..."
+
