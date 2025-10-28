@@ -69,8 +69,7 @@ def is_valid(url):
         # removes anchors
         clean_url, _ = urldefrag(url)
         url = clean_url.lower()
-        if url.hostname not in allowed_domains:
-            return False
+        
         
         
         if url in seen:
@@ -81,6 +80,8 @@ def is_valid(url):
         if parsed.scheme not in set(["http", "https"]):
             return False
 
+        if url.hostname not in allowed_domains:
+            return False
     
         seen.add(url)
 
