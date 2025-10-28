@@ -3,7 +3,7 @@ import utils
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin, urldefrag
 
-allowed_domains = {"ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"}
+allowed_domains = {"ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu", }
 
 
 seen = set()
@@ -67,22 +67,24 @@ def is_valid(url):
 
     try:
         # removes anchors
-        clean_url, _ = urldefrag(url)
-        url = clean_url.lower()
+    
+        url = url.lower()
         
         
         
         if url in seen:
             return False
 
-        parsed = urlparse(url)
+        parsed, _ = urldefrag(urlparse(url))
+    
         
         if parsed.scheme not in set(["http", "https"]):
             return False
 
-        if parsed.hostname not in allowed_domains:
-            print(f"DROPPED {parsed}")
-            return False
+        if parsed.hostname:
+            if not any(parsed.hostname == d or parsed.hostname.endswith("." + d) for d in allowed_domains):
+                print(f"DROPPED {parsed}")
+                return False
     
         seen.add(url)
 
