@@ -5,15 +5,15 @@ from urllib.parse import urlparse, urljoin, urldefrag
 
 allowed_domains = {"ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu", }
 
-def scraper(url, resp, seen_pages, seen_subdomains, global_word_frequencies, max_words):
+def scraper(url, resp, seen_pages, seen_subdomains, global_word_frequencies, max_words, fingerprints):
     '''Takes in the root url, extracts all immediate hyper links from the html data from extract_next_links, '''
-    links = extract_next_links(url, resp, word_frequencies, max_words)
+    links = extract_next_links(url, resp, global_word_frequencies, max_words, fingerprints)
     # Iterates over list of links (str) and returns the string if it is valid
     return [link for link in links if is_valid(link, seen_pages, seen_subdomains)]
 
 
 
-def extract_next_links(url, resp, global_word_frequencies, max_words):
+def extract_next_links(url, resp, global_word_frequencies, max_words, fingerprints):
     # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
@@ -66,7 +66,15 @@ def extract_next_links(url, resp, global_word_frequencies, max_words):
         # return empty list to not append links
         fingerprint = getFingerprint(local_word_frequencies)
 
-        # TODO: IMPLMEMENT HAMMING DISTANCE CHECK
+        if fingerprint in fingerprints:
+            return []
+
+        for element in fingerprints:
+            #Hardcoded threshold if less than 10 elements are different, it is too similar. If too similar, the fingerprint isnt added and empty list returns
+            if getHammingDistance(fingerprint, element) <= 8:
+                return []
+
+        fingerprints.add(fingerprint)
 
         max_words[0] = max(max_words[0], len(tokens))
 
@@ -121,41 +129,48 @@ def is_valid(url, seen_pages, seen_subdomains):
         print ("TypeError for ", parsed)
         raise
 
-def getFingerprint(word_frequencies) -> str:
+def getFingerprint(word_frequencies):
 
-    weighted_vector = [0] * 64
+    weighted_vector = [0]*64
+    fingerprint = [0]*64
 
-    for key, value in word_frequencies.items():
-        word_hash = customHash(key, value)
+    for word, freq in word_frequencies.items():
+        word_hash = customHash(word)
 
         for i in range(64):
-            if (h >> i) & 1:
+            if (word_hash >> i) & 1:
                 weighted_vector[i] += freq
             else:
                 weighted_vector[i] -= freq
 
-        fingerprint = 0
-        for i in range(64):
-            if vector[i] > 0:
-                fingerprint |= (1 << i)
+    for i in range(64):
+        if weighted_vector[i] > 0:
+            fingerprint[i] = 1
 
-        return fingerprint
-        
+    res = 0
+    for i in range(64):
+        if fingerprint[i] == 1:
+            res += 2 ** i
+
+    res &= 0xFFFFFFFFFFFFFFFF
+    return res
 
 
 
-def customHash(word, frequency):
+def customHash(word):
     '''Hashes the word into a 64 bit hash'''
     large_prime = 16908799
     result = 0
     for c in word:
         result = (127 * result + ord(c)) % large_prime
     
-    result = result * freq
-    result = result & 0xFFFFFFFFFFFFFFFF
+    result &= 0xFFFFFFFFFFFFFFFF
 
     return result 
 
+def getHammingDistance(a, b):
+    res = a ^ b
+    return bin(res).count('1')
 
 # Hi guys
 # Run the crawler as is, see what outputs we get and compare and see what we should do
