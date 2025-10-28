@@ -69,17 +69,12 @@ def is_valid(url):
         # removes anchors
     
         url = url.lower()
-        
-        
-        
-        if url in seen:
+        defrag_url, _ = urldefrag(url)
+        if defrag_url in seen:
             return False
 
-        parsed = urlparse(url)
-        defragged, _ = urldefrag(parsed)
-    
-        
-        if parsed.scheme not in set(["http", "https"]):
+        parsed = urlparse(defrag_url)
+        if parsed.scheme not in {"http", "https"}:
             return False
 
         if parsed.hostname:
