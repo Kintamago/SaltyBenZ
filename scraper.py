@@ -3,7 +3,7 @@ import utils
 import hashlib
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin, urldefrag
-from helper import stopwords
+from helper import stopwords, getFingerprint, getHammingDistance
 
 allowed_domains = {"ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu", }
 
@@ -74,7 +74,7 @@ def extract_next_links(url, resp, global_word_frequencies, max_words, fingerprin
             return []
 
         for element in fingerprints:
-            #Hardcoded threshold if less than 10 elements are different, it is too similar. If too similar, the fingerprint isnt added and empty list returns
+            #Hardcoded threshold if less than n elements are different, it is too similar. If too similar, the fingerprint isnt added and empty list returns
             if getHammingDistance(fingerprint, element) <= 8:
                 return []
 
