@@ -6,6 +6,7 @@ from urllib.parse import urlparse, urljoin, urldefrag
 from helper import stopwords, getFingerprint, getHammingDistance
 
 import threading
+import time
 
 
 allowed_domains = {"ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu", }
@@ -55,6 +56,7 @@ def extract_next_links(url, resp, global_word_frequencies, max_words, fingerprin
                 links.append(defrag_url)
 
         #Count words and frequencies
+        time.sleep(.5)
 
         #Local word_frequency for individual page for simhash
         
