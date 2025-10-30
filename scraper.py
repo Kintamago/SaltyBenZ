@@ -68,17 +68,17 @@ def extract_next_links(url, resp, global_word_frequencies, max_words, fingerprin
 
 
 
-        # fingerprint = getFingerprint(local_word_frequencies)
+        fingerprint = getFingerprint(local_word_frequencies)
 
-        # if fingerprint in fingerprints:
-        #     return []
+        if fingerprint in fingerprints:
+            return []
 
-        # for element in fingerprints:
-        #     #Hardcoded threshold if less than 10 elements are different, it is too similar. If too similar, the fingerprint isnt added and empty list returns
-        #     if getHammingDistance(fingerprint, element) <= 8:
-        #         return []
+        for element in fingerprints:
+            #Hardcoded threshold if less than 10 elements are different, it is too similar. If too similar, the fingerprint isnt added and empty list returns
+            if getHammingDistance(fingerprint, element) <= 4:
+                return []
 
-        # fingerprints.add(fingerprint)
+        fingerprints.add(fingerprint)
 
 
 
