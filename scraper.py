@@ -76,6 +76,7 @@ def extract_next_links(url, resp, global_word_frequencies, max_words, fingerprin
         for element in fingerprints:
             #Hardcoded threshold if less than 10 elements are different, it is too similar. If too similar, the fingerprint isnt added and empty list returns
             if getHammingDistance(fingerprint, element) <= 4:
+                print(f"fingerprint: Dropped {url} ")
                 return []
 
         fingerprints.add(fingerprint)
