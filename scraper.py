@@ -2,7 +2,7 @@ import re
 import utils
 import hashlib
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse, urljoin, urldefrag, isV
+from urllib.parse import urlparse, urljoin, urldefrag
 from helper import stopwords, getFingerprint, getHammingDistance
 
 import threading
