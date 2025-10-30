@@ -6,6 +6,7 @@ from utils import get_logger
 import scraper
 import datetime
 from .frontier import Frontier
+import time
 
 class Worker(Thread):
     def __init__(self, worker_id, config, frontier:Frontier):
