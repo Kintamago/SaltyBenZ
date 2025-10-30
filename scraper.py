@@ -1,7 +1,9 @@
 import re
 import utils
+import hashlib
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin, urldefrag
+from helper import stopwords
 
 allowed_domains = {"ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu", }
 
@@ -60,7 +62,9 @@ def extract_next_links(url, resp, global_word_frequencies, max_words, fingerprin
         tokens = [t for t in tokens if t]
         for token in tokens:
             global_word_frequencies[token] = global_word_frequencies.get(token, 0) + 1
-            local_word_frequencies[token] = local_word_frequencies.get(token, 0) + 1
+
+            if token not in stopwords:
+                local_word_frequencies[token] = local_word_frequencies.get(token, 0) + 1
 
         #get finger print, add to stored set of finger prints, if it is similar (hamming distance), 
         # return empty list to not append links
@@ -99,7 +103,7 @@ def is_valid(url, seen_pages, seen_subdomains):
 
     try:
         # removes anchors
-    
+
         url = url.lower()
         page, _ = urldefrag(url)
         if page in seen_pages:
@@ -137,48 +141,6 @@ def is_valid(url, seen_pages, seen_subdomains):
         print ("TypeError for ", parsed)
         raise
 
-def getFingerprint(word_frequencies):
-
-    weighted_vector = [0]*64
-    fingerprint = [0]*64
-
-    for word, freq in word_frequencies.items():
-        word_hash = customHash(word)
-
-        for i in range(64):
-            if (word_hash >> i) & 1:
-                weighted_vector[i] += freq
-            else:
-                weighted_vector[i] -= freq
-
-    for i in range(64):
-        if weighted_vector[i] > 0:
-            fingerprint[i] = 1
-
-    res = 0
-    for i in range(64):
-        if fingerprint[i] == 1:
-            res += 2 ** i
-
-    res &= 0xFFFFFFFFFFFFFFFF
-    return res
-
-
-
-def customHash(word):
-    '''Hashes the word into a 64 bit hash'''
-    large_prime = 16908799
-    result = 0
-    for c in word:
-        result = (127 * result + ord(c)) % large_prime
-    
-    result &= 0xFFFFFFFFFFFFFFFF
-
-    return result 
-
-def getHammingDistance(a, b):
-    res = a ^ b
-    return bin(res).count('1')
 
 # Hi guys
 # Run the crawler as is, see what outputs we get and compare and see what we should do
