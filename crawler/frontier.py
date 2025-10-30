@@ -120,7 +120,7 @@ class Frontier(object):
                     print(" WE HAVE AN ERROR GETTING THE NEXT URL ")
             if i >= len(self.to_be_downloaded):
                 print("THE FRONTIER IS THIS")
-                print(self.to_be_downloaded)
+                print(len(self.to_be_downloaded))
                 return None
 
             else:
