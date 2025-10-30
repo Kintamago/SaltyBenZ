@@ -59,7 +59,10 @@ def extract_next_links(url, resp, global_word_frequencies, max_words, fingerprin
 
         text = soup.get_text(separator=' ')
         tokens = re.split(r'[^a-zA-Z0-9]+', text.lower())
-        tokens = [t for t in tokens if t]
+
+        #Filtering out all tokens with length less than 2
+        tokens = [t for t in tokens if len(t) > 2]
+
         for token in tokens:
             global_word_frequencies[token] = global_word_frequencies.get(token, 0) + 1
 
@@ -71,11 +74,13 @@ def extract_next_links(url, resp, global_word_frequencies, max_words, fingerprin
         fingerprint = getFingerprint(local_word_frequencies)
 
         if fingerprint in fingerprints:
+            print(f"Fingerprint match found for {url}, skipping")
             return []
 
         for element in fingerprints:
             #Hardcoded threshold if less than n elements are different, it is too similar. If too similar, the fingerprint isnt added and empty list returns
             if getHammingDistance(fingerprint, element) <= 8:
+                print(f"Similar fingerprint, distance = {distance}) for {url}")
                 return []
 
         fingerprints.add(fingerprint)
