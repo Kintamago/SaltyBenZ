@@ -5,6 +5,8 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin, urldefrag, isV
 from helper import stopwords, getFingerprint, getHammingDistance
 
+import threading
+
 
 allowed_domains = {"ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu", }
 
