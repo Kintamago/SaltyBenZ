@@ -7,6 +7,8 @@ from queue import Queue, Empty
 from utils import get_logger, get_urlhash, normalize
 from scraper import is_valid
 import threading
+from datetime import datetime, timedelta
+from urllib.parse import urldefrag, urlparse
 
 
 class Frontier(object):
@@ -15,6 +17,7 @@ class Frontier(object):
         self.config = config
         self.to_be_downloaded = list()
         self.lock = threading.RLock()
+        self.delays = dict()
         
         if not os.path.exists(self.config.save_file) and not restart:
             # Save file does not exist, but request to load save.
@@ -52,12 +55,13 @@ class Frontier(object):
             f"total urls discovered.")
 
     def get_tbd_url(self):
-        #!Locked here
+        #! THIS PART IS IMPORTANTT FOR TRHEADING< MIGHT WANNA POP OTHER INDEX
         with self.lock:
             try:
-                return self.to_be_downloaded.pop()
+                return self.get_valid_url()
             except IndexError:
                 return None
+        
 
     def add_url(self, url):
         url = normalize(url)
@@ -79,3 +83,45 @@ class Frontier(object):
                     f"Completed url {url}, but have not seen it before.")
             self.save[urlhash] = (url, True)
             self.save.sync()
+
+    def get_last_time_domain_hit(self, domainName) -> bool:
+        if domainName not in self.delays:
+            return True
+        change = datetime.now() - self.delays[domainName]
+        return change < timedelta(seconds=.5)
+
+    def get_tbd_at(self, index):
+        with self.lock:
+            try:
+                return self.to_be_downloaded.pop(index)
+            except IndexError:
+                return None
+            
+    def get_valid_url(self):
+        with self.lock:
+            i = 0
+            while True:
+                
+                if i >= len(self.to_be_downloaded):
+                    break
+                url = self.to_be_downloaded[i]
+                url = url.lower()
+                page, _ = urldefrag(url)
+                parsed = urlparse(page)
+                subdomain = parsed.hostname
+                if subdomain:
+                    if self.get_last_time_domain_hit(subdomain):
+                        self.delays[subdomain] = datetime.now()
+                        return self.to_be_downloaded.pop(i)
+                    else:
+                        i += 1
+
+                else:
+                    print(" WE HAVE AN ERROR GETTING THE NEXT URL ")
+            if i >= len(self.to_be_downloaded):
+                return None
+            else:
+                #!FIGURE THIS OUE
+                print("couldn't find anything. figure out a case for this")
+            
+        

@@ -56,8 +56,6 @@ def extract_next_links(url, resp, global_word_frequencies, max_words, fingerprin
                 links.append(defrag_url)
 
         #Count words and frequencies
-        time.sleep(.5)
-
         #Local word_frequency for individual page for simhash
         
         local_word_frequencies = dict()
