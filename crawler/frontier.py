@@ -121,6 +121,7 @@ class Frontier(object):
             if i >= len(self.to_be_downloaded):
                 print("THE FRONTIER IS THIS")
                 print(len(self.to_be_downloaded))
+                print(self.delays.keys())
                 return None
 
             else:
