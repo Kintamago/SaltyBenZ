@@ -67,7 +67,10 @@ class Frontier(object):
                 self.save[urlhash] = (url, False)
                 self.save.sync()
                 self.to_be_downloaded.append(url)
-    
+            else:
+                _, completed = self.save[urlhash]
+                if not completed:
+                    return
     def mark_url_complete(self, url):
         urlhash = get_urlhash(url)
         with self.lock:
