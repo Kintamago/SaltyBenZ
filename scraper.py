@@ -13,8 +13,6 @@ def scraper(url, resp, seen_pages, seen_subdomains, global_word_frequencies, max
     # Iterates over list of links (str) and returns the string if it is valid
     return [link for link in links if is_valid(link, seen_pages, seen_subdomains)]
 
-
-
 def extract_next_links(url, resp, global_word_frequencies, max_words, fingerprints):
     # Implementation required.
     # url: the URL that was used to get the page
@@ -42,6 +40,7 @@ def extract_next_links(url, resp, global_word_frequencies, max_words, fingerprin
 
         #Remove all anchor tags
         for anchor in soup.find_all('a', href=True):
+
             #Makes an absolute URL from relative URL
             absolute_url = urljoin(resp.url, anchor['href'])
 
@@ -51,10 +50,8 @@ def extract_next_links(url, resp, global_word_frequencies, max_words, fingerprin
             if defrag_url:
                 links.append(defrag_url)
 
-        #Count words and frequencies
+        #Extracting words and frequencies (total and individually)
 
-        #Local word_frequency for individual page for simhash
-        
         local_word_frequencies = dict()
 
         text = soup.get_text(separator=' ')
@@ -69,8 +66,7 @@ def extract_next_links(url, resp, global_word_frequencies, max_words, fingerprin
             if token not in stopwords:
                 local_word_frequencies[token] = local_word_frequencies.get(token, 0) + 1
 
-        #get finger print, add to stored set of finger prints, if it is similar (hamming distance), 
-        # return empty list to not append links
+        #Fingerprinting with SimHash
         fingerprint = getFingerprint(local_word_frequencies)
 
         if fingerprint in fingerprints:
@@ -85,6 +81,7 @@ def extract_next_links(url, resp, global_word_frequencies, max_words, fingerprin
 
         fingerprints.add(fingerprint)
 
+        #Update the max_words if it is greater
         max_words[0] = max(max_words[0], len(tokens))
 
     except Exception as e:
@@ -99,19 +96,17 @@ def is_valid(url, seen_pages, seen_subdomains):
     # There are already some conditions that return False.
 
     try:
-        # removes anchors
 
         url = url.lower()
         page, _ = urldefrag(url)
+        parsed = urlparse(page)
+        subdomain = parsed.hostname
+
         if page in seen_pages:
             return False
 
-        parsed = urlparse(page)
-
         if parsed.scheme not in {"http", "https"}:
             return False
-
-        subdomain = parsed.hostname
 
         if subdomain:
             if not any(subdomain == d or subdomain.endswith("." + d) for d in allowed_domains):
@@ -123,7 +118,6 @@ def is_valid(url, seen_pages, seen_subdomains):
         if page:
             seen_pages.add(page)
         
-
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
@@ -137,15 +131,4 @@ def is_valid(url, seen_pages, seen_subdomains):
     except TypeError:
         print ("TypeError for ", parsed)
         raise
-
-
-# Hi guys
-# Run the crawler as is, see what outputs we get and compare and see what we should do
-# The is valid is like a filter, filters out unwanted sites and values
-# dont worry about robots.txt (assuming it alr does that)
-
-# The way to solve multithreading is to have a centralized frontier management
-# separate part of program that handles frontier, the crawlers come to this frontier for URL, the frontier uses its own logic to give out urls
-# Notes I took during class while half asleep
-# Ion think it should be "IR RF25 {our UCI-ID} ..."
 
