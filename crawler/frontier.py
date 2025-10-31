@@ -3,7 +3,7 @@ import shelve
 
 from threading import Thread, RLock
 from queue import Queue, Empty
-
+import time 
 from utils import get_logger, get_urlhash, normalize
 from scraper import is_valid
 import threading
@@ -99,33 +99,27 @@ class Frontier(object):
             
     def get_valid_url(self):
         with self.lock:
-            i = 0
-            while True:
-                
-                if i >= len(self.to_be_downloaded):
-                    break
-                url = self.to_be_downloaded[i]
-                url = url.lower()
-                page, _ = urldefrag(url)
-                parsed = urlparse(page)
-                subdomain = parsed.hostname
-                if subdomain:
-                    if self.get_last_time_domain_hit(subdomain):
-                        self.delays[subdomain] = datetime.now()
-                        return self.to_be_downloaded.pop(i)
+            while len(self.to_be_downloaded) != 0:
+                i = 0
+                while True:
+                    
+                    if i >= len(self.to_be_downloaded):
+                        break
+                    url = self.to_be_downloaded[i]
+                    url = url.lower()
+                    page, _ = urldefrag(url)
+                    parsed = urlparse(page)
+                    subdomain = parsed.hostname
+                    if subdomain:
+                        if self.get_last_time_domain_hit(subdomain):
+                            self.delays[subdomain] = datetime.now()
+                            return self.to_be_downloaded.pop(i)
+                        else:
+                            i += 1
+
                     else:
-                        i += 1
-
-                else:
-                    print(" WE HAVE AN ERROR GETTING THE NEXT URL ")
-            if i >= len(self.to_be_downloaded):
-                print("THE FRONTIER IS THIS")
-                print(len(self.to_be_downloaded))
-                print(self.delays.keys())
-                return None
-
-            else:
-                #!FIGURE THIS OUE
-                print("couldn't find anything. figure out a case for this")
-            
-        
+                        print(" WE HAVE AN ERROR GETTING THE NEXT URL ")
+                
+                if len(self.to_be_downloaded) == 0:
+                    return None
+                time.sleep(.1)
