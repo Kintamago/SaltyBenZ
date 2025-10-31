@@ -120,7 +120,9 @@ class Frontier(object):
         j = 0
         with self.lock:
             
-
+            #debatable use here. otherwise max at 4 crawlers.
+            if len(self.to_be_downloaded) == 0:
+                time.sleep(.5)
             while len(self.to_be_downloaded) != 0:
                 if j > 50:
                     print("WE COULDN't FIND A GOOD LINK TO SEARCH")
@@ -149,7 +151,7 @@ class Frontier(object):
                 
                 if len(self.to_be_downloaded) == 0:
                     return None
-                time.sleep(.1)
+                time.sleep(.05)
                 j += 1
             
             
