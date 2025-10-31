@@ -10,7 +10,7 @@ import threading
 from datetime import datetime, timedelta
 from urllib.parse import urldefrag, urlparse
 
-
+allowed_domains = {"ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu", }
 class Frontier(object):
     def __init__(self, config, restart):
         self.logger = get_logger("FRONTIER")
@@ -84,11 +84,21 @@ class Frontier(object):
             self.save[urlhash] = (url, True)
             self.save.sync()
 
+    def get_base_domain(domain):
+        parts = domain.split('.')
+        # Handle cases like 'sub.example.co.uk' → 'example.co.uk'
+        return '.'.join(parts[-3:]) if len(parts) >= 3 else domain
+
     def get_last_time_domain_hit(self, domainName) -> bool:
-        if domainName not in self.delays:
-            return True
-        change = datetime.now() - self.delays[domainName]
-        return change < timedelta(seconds=.5)
+        
+        if any(domainName == d or domainName.endswith("." + d) for d in allowed_domains):
+            key = self.get_base_domain(domainName)
+
+            if key not in self.delays:
+                return True
+
+            change = datetime.now() - self.delays[key]
+            return change < timedelta(seconds=0.5)
 
     def get_tbd_at(self, index):
         with self.lock:
