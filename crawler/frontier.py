@@ -84,7 +84,7 @@ class Frontier(object):
             self.save[urlhash] = (url, True)
             self.save.sync()
 
-    def get_base_domain(domain):
+    def get_base_domain(self, domain):
         parts = domain.split('.')
         # Handle cases like 'sub.example.co.uk' → 'example.co.uk'
         return '.'.join(parts[-3:]) if len(parts) >= 3 else domain
