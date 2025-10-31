@@ -98,7 +98,13 @@ class Frontier(object):
                 return True
 
             change = datetime.now() - self.delays[key]
-            return change >= timedelta(seconds=0.5)
+
+            if change >= timedelta(seconds=0.5): 
+                print(change)
+                print(f'TIME IN MS {(change.total_seconds() * 1000):.2f}')
+                return True
+            else:
+                return False 
         return False
 
     def get_tbd_at(self, index):
@@ -110,8 +116,16 @@ class Frontier(object):
             
     def get_valid_url(self):
         print(len(self.to_be_downloaded))
+        j = 0
         with self.lock:
+            
+
             while len(self.to_be_downloaded) != 0:
+                if j > 50:
+                    print("WE COULDN't FIND A GOOD LINK TO SEARCH")
+                    return None
+            
+
                 i = 0
                 while True:
                     
@@ -135,4 +149,6 @@ class Frontier(object):
                 if len(self.to_be_downloaded) == 0:
                     return None
                 time.sleep(.1)
+                j += 1
+            
             
