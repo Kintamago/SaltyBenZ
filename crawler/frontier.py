@@ -98,6 +98,7 @@ class Frontier(object):
                 return None
             
     def get_valid_url(self):
+        print(len(self.to_be_downloaded))
         with self.lock:
             while len(self.to_be_downloaded) != 0:
                 i = 0
@@ -123,3 +124,4 @@ class Frontier(object):
                 if len(self.to_be_downloaded) == 0:
                     return None
                 time.sleep(.1)
+            
