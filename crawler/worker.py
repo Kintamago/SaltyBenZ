@@ -4,7 +4,7 @@ from inspect import getsource
 from utils.download import download
 from utils import get_logger
 import scraper
-import datetime
+
 from .frontier import Frontier
 import time
 
@@ -27,7 +27,6 @@ class Worker(Thread):
         
     def run(self):
         while True:
-            start = datetime.now()
             tbd_url = self.frontier.get_tbd_url()
             if not tbd_url:
                 self.logger.info("Frontier is empty. Stopping Crawler.")
