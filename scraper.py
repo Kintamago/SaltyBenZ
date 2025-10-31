@@ -117,6 +117,17 @@ def is_valid(url, seen_pages, seen_subdomains):
             seen_subdomains[subdomain] = seen_subdomains.get(subdomain, 0) + 1
         if page:
             seen_pages.add(page)
+
+        path_params = parsed.path.lower()
+        query_params = parsed.query.lower()
+        dynamic_scripts = ['doku.php', 'events', '~eppstein']
+
+        if any(script in path_params for script in dynamic_scripts):
+            print(f"DROPPED (dynamic script with params): {url}")
+            return False
+            
+        if any(param in query_params for param in ['ical=', 'outlook-ical=', 'google-calendar=', 'webcal=']):
+            return False
         
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
@@ -131,4 +142,5 @@ def is_valid(url, seen_pages, seen_subdomains):
     except TypeError:
         print ("TypeError for ", parsed)
         raise
+
 
