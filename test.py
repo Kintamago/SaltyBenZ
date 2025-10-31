@@ -4,6 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 from helper import stopwords, getFingerprint, getHammingDistance
 
+
 def get_page_fingerprint(url):
     """
     Downloads the page, extracts text, tokenizes words, and returns its SimHash fingerprint.

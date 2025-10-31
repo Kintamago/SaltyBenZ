@@ -17,6 +17,7 @@ class Frontier(object):
         self.config = config
         self.to_be_downloaded = list()
         self.lock = threading.RLock()
+        self.seen = set()
         self.delays = dict()
         
         if not os.path.exists(self.config.save_file) and not restart:
@@ -68,9 +69,11 @@ class Frontier(object):
         urlhash = get_urlhash(url)
         with self.lock:
             if urlhash not in self.save:
-                self.save[urlhash] = (url, False)
-                self.save.sync()
-                self.to_be_downloaded.append(url)
+                if urlhash not in self.seen:
+                    self.save[urlhash] = (url, False)
+                    self.save.sync()
+                    self.seen.add(url)
+                    self.to_be_downloaded.append(url)
             else:
                 _, completed = self.save[urlhash]
                 if not completed:
@@ -118,40 +121,40 @@ class Frontier(object):
     def get_valid_url(self):
         print(len(self.to_be_downloaded))
         j = 0
-        with self.lock:
+        
             
-            #debatable use here. otherwise max at 4 crawlers.
-            if len(self.to_be_downloaded) == 0:
-                time.sleep(1)
-            while len(self.to_be_downloaded) != 0:
-                if j > 50:
-                    print("WE COULDN't FIND A GOOD LINK TO SEARCH")
-                    return None
-            
+        #debatable use here. otherwise max at 4 crawlers.
+        if len(self.to_be_downloaded) == 0:
+            time.sleep(1)
+        while len(self.to_be_downloaded) != 0:
+            if j > 100:
+                print("WE COULDN't FIND A GOOD LINK TO SEARCH")
+                return None
+        
 
-                i = 0
-                while True:
-                    
-                    if i >= len(self.to_be_downloaded):
-                        break
-                    url = self.to_be_downloaded[i]
-                    url = url.lower()
-                    page, _ = urldefrag(url)
-                    parsed = urlparse(page)
-                    subdomain = parsed.hostname
-                    if subdomain:
-                        if self.get_last_time_domain_hit(subdomain):
-                            self.delays[subdomain] = datetime.now()
-                            return self.to_be_downloaded.pop(i)
-                        else:
-                            i += 1
-
-                    else:
-                        print(" WE HAVE AN ERROR GETTING THE NEXT URL ")
+            i = 0
+            while True:
                 
-                if len(self.to_be_downloaded) == 0:
-                    return None
-                time.sleep(.05)
-                j += 1
+                if i >= len(self.to_be_downloaded):
+                    break
+                url = self.to_be_downloaded[i]
+                url = url.lower()
+                page, _ = urldefrag(url)
+                parsed = urlparse(page)
+                subdomain = parsed.hostname
+                if subdomain:
+                    if self.get_last_time_domain_hit(subdomain):
+                        self.delays[subdomain] = datetime.now()
+                        return self.to_be_downloaded.pop(i)
+                    else:
+                        i += 1
+
+                else:
+                    print(" WE HAVE AN ERROR GETTING THE NEXT URL ")
             
-            
+            if len(self.to_be_downloaded) == 0:
+                return None
+            time.sleep(.05)
+            j += 1
+        
+        
