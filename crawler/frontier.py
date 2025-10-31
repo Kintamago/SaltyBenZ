@@ -100,7 +100,6 @@ class Frontier(object):
             change = datetime.now() - self.delays[key]
 
             if change >= timedelta(seconds=0.5): 
-                print(change)
                 print(f'TIME IN MS {(change.total_seconds() * 1000):.2f}')
                 return True
             else:
