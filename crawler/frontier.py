@@ -91,20 +91,22 @@ class Frontier(object):
 
     def get_last_time_domain_hit(self, domainName) -> bool:
         
-        if any(domainName == d or domainName.endswith("." + d) for d in allowed_domains):
-            key = self.get_base_domain(domainName)
+        # if any(domainName == d or domainName.endswith("." + d) for d in allowed_domains):
+            # key = self.get_base_domain(domainName)
 
-            if key not in self.delays:
-                return True
+        if domainName not in self.delays:
+            return True
 
-            change = datetime.now() - self.delays[key]
+        change = datetime.now() - self.delays[domainName]
 
-            if change >= timedelta(seconds=0.5): 
-                print(f'TIME IN MS {(change.total_seconds() * 1000):.2f}')
-                return True
-            else:
-                return False 
-        return False
+        if change >= timedelta(seconds=0.5): 
+            print(f'TIME IN MS {(change.total_seconds() * 1000):.2f}')
+            return True
+        else:
+            return False 
+        
+        #return False
+
 
     def get_tbd_at(self, index):
         with self.lock:
