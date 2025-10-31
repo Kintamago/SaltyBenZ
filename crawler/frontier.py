@@ -98,7 +98,8 @@ class Frontier(object):
                 return True
 
             change = datetime.now() - self.delays[key]
-            return change < timedelta(seconds=0.5)
+            return change >= timedelta(seconds=0.5)
+        return False
 
     def get_tbd_at(self, index):
         with self.lock:
