@@ -10,7 +10,7 @@ import threading
 import time
 
 
-allowed_domains = {"ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu", }
+allowed_domains = {"informatics.uci.edu", "stat.uci.edu", }
 
 def scraper(url, resp, seen_pages, seen_subdomains, global_word_frequencies, max_words, fingerprints):
     '''Takes in the root url, extracts all immediate hyper links from the html data from extract_next_links, '''

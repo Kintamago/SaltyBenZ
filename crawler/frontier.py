@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from urllib.parse import urldefrag, urlparse
 from helper import stopwords
 
-allowed_domains = {"ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu", }
+allowed_domains = { "informatics.uci.edu", "stat.uci.edu", }
 class Frontier(object):
     def __init__(self, config, restart):
         self.logger = get_logger("FRONTIER")
