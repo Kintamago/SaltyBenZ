@@ -154,11 +154,13 @@ class Frontier(object):
                     if self.get_last_time_domain_hit(subdomain):
                         self.delays[subdomain] = datetime.now()
                         return self.to_be_downloaded.pop(i)
+                    i+=1
 
                 else:
                     print(" WE HAVE AN ERROR GETTING THE NEXT URL ")
                     print(f"SUBDOMAIN OF {url} HAS ISSUES")
-                i+=1
+                    self.to_be_downloaded.pop(i)
+                
             
             if len(self.to_be_downloaded) == 0:
                 return None
