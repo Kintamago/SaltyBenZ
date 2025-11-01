@@ -4,6 +4,7 @@ import hashlib
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin, urldefrag
 from helper import stopwords, getFingerprint, getHammingDistance
+from threading import current_thread
 
 allowed_domains = {"ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu", }
 
@@ -81,8 +82,13 @@ def extract_next_links(url, resp, global_word_frequencies, max_words, fingerprin
 
         fingerprints.add(fingerprint)
 
-        #Update the max_words if it is greater
-        max_words[0] = max(max_words[0], len(tokens))
+        
+        # Update the longest_page_url and max_words
+        if len(tokens) > max_words[0]:
+            max_words[0] = len(tokens)  
+            current = current_thread()                 
+            if hasattr(current, 'longest_page_url'):   
+                current.longest_page_url = url        
 
     except Exception as e:
         print(f"There was an error extracting from {url} : {e}")

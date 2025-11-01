@@ -18,7 +18,8 @@ class Worker(Thread):
         self.global_word_frequencies = dict()
         self.fingerprints = set()
         self.max_words = [0]
-
+        self.longest_page_url = None
+        
         # basic check for requests in scraper
         assert {getsource(scraper).find(req) for req in {"from requests import", "import requests"}} == {-1}, "Do not use requests in scraper.py"
         assert {getsource(scraper).find(req) for req in {"from urllib.request import", "import urllib.request"}} == {-1}, "Do not use urllib.request in scraper.py"
@@ -66,7 +67,8 @@ class Worker(Thread):
         lines.append(f"Total unique pages crawled: {total_pages}\n")
         lines.append(f"Total unique subdomains: {total_subdomains}\n")
         lines.append("Top 10 Subdomains:\n")
-
+        lines.append(f"\nLongest page by word count: {self.longest_page_url} ({self.max_words[0]} words)\n")
+        
         for sub, count in most_visited_subdomains:
             lines.append(f"  - {sub}: {count} pages\n")
 
