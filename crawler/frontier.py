@@ -26,6 +26,7 @@ class Frontier(object):
             "subdomains": {},         # {subdomain: count}
             "max_words": [0],         # global max word count tracker
         }
+        self.statuses = 0
         
         if not os.path.exists(self.config.save_file) and not restart:
             # Save file does not exist, but request to load save.
@@ -134,9 +135,12 @@ class Frontier(object):
         #debatable use here. otherwise max at 4 crawlers.
         if len(self.to_be_downloaded) == 0:
             time.sleep(1)
-        while len(self.to_be_downloaded) != 0:
-            if j > 105:
-                print("WE COULDN't FIND A GOOD LINK TO SEARCH")
+        while len(self.to_be_downloaded) != 0 or self.statuses > 0:
+            
+            if self.statuses <= 0:
+                print("THERE SHOULD BE NOTHIGN LEFT")
+                print(f'STATUSES {self.statuses}')
+                print(len(self.to_be_downloaded))
                 return None
         
 
@@ -159,12 +163,10 @@ class Frontier(object):
                 else:
                     print(f"WARNING: ERROR GETTING SUBDOMAIN OF {url}")
                     self.to_be_downloaded.pop(i)
-                
             
-            if len(self.to_be_downloaded) == 0:
-                return None
             time.sleep(.05)
             j += 1
+        return None
         
         
 

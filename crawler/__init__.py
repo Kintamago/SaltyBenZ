@@ -20,11 +20,6 @@ class Crawler(object):
         for worker in self.workers:
             worker.start()
 
-
-    
-
-    
-
     def start(self):
         self.start_async()
         self.join()
