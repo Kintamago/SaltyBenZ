@@ -180,7 +180,7 @@ class Frontier(object):
 
         clean_freqs = {
             word: count
-            for word, count in self.data.word_freq.items()
+            for word, count in self.data['word_freq'].items()
             if word not in stopwords
         }
         # can make "and word.isalpha()" if numbers are non-valid for "words"
