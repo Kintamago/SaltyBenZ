@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from urllib.parse import urldefrag, urlparse
 from helper import stopwords
 
-allowed_domains = {"stat.uci.edu"}
+allowed_domains = {"informatics.uci.edu"}
 class Frontier(object):
     def __init__(self, config, restart):
         self.logger = get_logger("FRONTIER")
@@ -187,7 +187,7 @@ class Frontier(object):
 
         top_words = sorted(clean_freqs.items(), key=lambda x: x[1], reverse=True)[:50]
 
-        total_pages = len(self.data['visited_pages'])
+        total_pages = self.data['visited_pages'].size()
         total_subdomains = len(self.data['subdomains'])
         most_visited_subdomains = sorted(
             self.data['subdomains'].items(), key=lambda x: x[1], reverse=True
