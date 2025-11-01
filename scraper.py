@@ -84,8 +84,6 @@ def extract_next_links(url, resp, global_word_frequencies, max_words, fingerprin
             if hamming and hamming <= 8:
                 print(f"Similar fingerprint, distance = {hamming}) for {url}")
                 return []
-            if not hamming:
-                print(f"WARNING: HAMMING IS failing from fingerprint: {fingerprint}, element: {element}")
 
         fingerprints.add(fingerprint)
 
