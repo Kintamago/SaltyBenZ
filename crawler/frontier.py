@@ -215,6 +215,8 @@ class Frontier(object):
 
         print(f"summary in total_summary.txt")
 
-    def __exit__(self):
+    def __enter__(self):
+        # This runs when you enter the `with` block
+        return self
+    def __del__(self):
         self.compile_data()
-

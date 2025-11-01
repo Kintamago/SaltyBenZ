@@ -20,6 +20,7 @@ class Crawler(object):
         for worker in self.workers:
             worker.start()
 
+
     
 
     
@@ -27,6 +28,8 @@ class Crawler(object):
     def start(self):
         self.start_async()
         self.join()
+        self.frontier.compile_data()
+        self.frontier.save.close() 
 
     def join(self):
         for worker in self.workers:
