@@ -9,6 +9,7 @@ from scraper import is_valid
 import threading
 from datetime import datetime, timedelta
 from urllib.parse import urldefrag, urlparse
+from helper import stopwords
 
 allowed_domains = {"ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu", }
 class Frontier(object):
@@ -19,6 +20,12 @@ class Frontier(object):
         self.lock = threading.RLock()
         self.seen = set()
         self.delays = dict()
+        self.data = {
+            "word_freq": {},          # merged global word counts
+            "visited_pages": set(),   # all unique pages seen
+            "subdomains": {},         # {subdomain: count}
+            "max_words": [0],         # global max word count tracker
+        }
         
         if not os.path.exists(self.config.save_file) and not restart:
             # Save file does not exist, but request to load save.
@@ -158,3 +165,54 @@ class Frontier(object):
             j += 1
         
         
+
+        def compile_data(self):
+
+            '''
+            self.data = {
+            "word_freq": {},          # merged global word counts
+            "visited_pages": set(),   # all unique pages seen
+            "subdomains": {},         # {subdomain: count}
+            "max_words": [0],         # global max word count tracker
+            '''
+
+            clean_freqs = {
+                word: count
+                for word, count in self.word_freq.items()
+                if word not in stopwords
+            }
+            # can make "and word.isalpha()" if numbers are non-valid for "words"
+
+            top_words = sorted(clean_freqs.items(), key=lambda x: x[1], reverse=True)[:50]
+
+            total_pages = len(self.data['visited_pages'])
+            total_subdomains = len(self.data['subdomains'])
+            most_visited_subdomains = sorted(
+                self.data['subdomains'].items(), key=lambda x: x[1], reverse=True
+                )[:10]
+
+            # Build report lines
+            lines = []
+            lines.append("SUMMARY\n")
+            lines.append(f"Total unique pages crawled: {total_pages}\n")
+            lines.append(f"Total unique subdomains: {total_subdomains}\n")
+            lines.append("Top 10 Subdomains:\n")
+
+            for sub, count in most_visited_subdomains:
+                lines.append(f"  - {sub}: {count} pages\n")
+
+            lines.append("\nTop 50 Words (filtered):\n")
+
+            for word, count in top_words:
+                lines.append(f"  {word:<20} {count}\n")
+
+            filename = f"total_summary.txt"
+
+            with open(filename, "w", encoding="utf-8") as f:
+                f.writelines(lines)
+
+            print(f"summary in total_summary.txt")
+
+        def __exit__(self):
+            self.compile_data()
+

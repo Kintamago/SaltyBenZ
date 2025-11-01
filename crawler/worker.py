@@ -32,7 +32,6 @@ class Worker(Thread):
                 self.logger.info("Frontier is empty. Stopping Crawler.")
                 break
 
-            
             resp = download(tbd_url, self.config, self.logger)
             self.logger.info(
                 f"Downloaded {tbd_url}, status <{resp.status}>, "
@@ -41,7 +40,6 @@ class Worker(Thread):
             for scraped_url in scraped_urls:
                 self.frontier.add_url(scraped_url)
             self.frontier.mark_url_complete(tbd_url)
-            time.sleep(self.config.time_delay)
         self.summary_output()
 
     
@@ -55,32 +53,32 @@ class Worker(Thread):
         }
         # can make "and word.isalpha()" if numbers are non-valid for "words"
 
-        top_words = sorted(clean_freqs.items(), key=lambda x: x[1], reverse=True)[:50]
 
-        total_pages = len(self.seen_pages)
-        total_subdomains = len(self.seen_subdomains)
-        most_visited_subdomains = sorted(
+        total_pages = len(self.seen_pages) #good
+        total_subdomains = len(self.seen_subdomains) #good 
+        all_visited_subdomains = sorted(           #good
             self.seen_subdomains.items(), key=lambda x: x[1], reverse=True
-            )[:10]
+            )
+        
+        with self.frontier.lock:
+            #chat gpt generated merging code.
+            # merge word frequencies
+            for w, c in self.global_word_frequencies.items():
+                self.frontier.data["word_freq"][w] = (
+                    self.frontier.data["word_freq"].get(w, 0) + c
+                )
 
-        # Build report lines
-        lines = []
-        lines.append("SUMMARY\n")
-        lines.append(f"Total unique pages crawled: {total_pages}\n")
-        lines.append(f"Total unique subdomains: {total_subdomains}\n")
-        lines.append("Top 10 Subdomains:\n")
+            # merge pages
+            self.frontier.data["visited_pages"].update(self.seen_pages)
 
-        for sub, count in most_visited_subdomains:
-            lines.append(f"  - {sub}: {count} pages\n")
+            # merge subdomains
+            for sub, count in self.seen_subdomains.items():
+                self.frontier.data["subdomains"][sub] = (
+                    self.frontier.data["subdomains"].get(sub, 0) + count
+                )
 
-        lines.append("\nTop 50 Words (filtered):\n")
+            # track global max words
+            self.frontier.data["max_words"][0] = max(
+                self.frontier.data["max_words"][0], self.max_words[0]
+            )
 
-        for word, count in top_words:
-            lines.append(f"  {word:<20} {count}\n")
-
-        filename = f"worker_{self.name}_summary.txt"
-
-        with open(filename, "w", encoding="utf-8") as f:
-            f.writelines(lines)
-
-        self.logger.info(f"Summary written to {filename}")
