@@ -80,9 +80,12 @@ def extract_next_links(url, resp, global_word_frequencies, max_words, fingerprin
 
         for element in fingerprints:
             #Hardcoded threshold if less than n elements are different, it is too similar. If too similar, the fingerprint isnt added and empty list returns
-            if getHammingDistance(fingerprint, element) <= 8:
-                print(f"Similar fingerprint, distance = {distance}) for {url}")
+            hamming = getHammingDistance(fingerprint, element)
+            if hamming and hamming <= 8:
+                print(f"Similar fingerprint, distance = {hamming}) for {url}")
                 return []
+            else:
+                print(f"WARNING: HAMMING IS from fingerprint: {fingerprint}, element: {element}")
 
         fingerprints.add(fingerprint)
 

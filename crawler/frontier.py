@@ -157,8 +157,7 @@ class Frontier(object):
                     i+=1
 
                 else:
-                    print(" WE HAVE AN ERROR GETTING THE NEXT URL ")
-                    print(f"SUBDOMAIN OF {url} HAS ISSUES")
+                    print(f"WARNING: ERROR GETTING SUBDOMAIN OF {url}")
                     self.to_be_downloaded.pop(i)
                 
             
@@ -169,53 +168,53 @@ class Frontier(object):
         
         
 
-        def compile_data(self):
+    def compile_data(self):
 
-            '''
-            self.data = {
-            "word_freq": {},          # merged global word counts
-            "visited_pages": set(),   # all unique pages seen
-            "subdomains": {},         # {subdomain: count}
-            "max_words": [0],         # global max word count tracker
-            '''
+        '''
+        self.data = {
+        "word_freq": {},          # merged global word counts
+        "visited_pages": set(),   # all unique pages seen
+        "subdomains": {},         # {subdomain: count}
+        "max_words": [0],         # global max word count tracker
+        '''
 
-            clean_freqs = {
-                word: count
-                for word, count in self.word_freq.items()
-                if word not in stopwords
-            }
-            # can make "and word.isalpha()" if numbers are non-valid for "words"
+        clean_freqs = {
+            word: count
+            for word, count in self.word_freq.items()
+            if word not in stopwords
+        }
+        # can make "and word.isalpha()" if numbers are non-valid for "words"
 
-            top_words = sorted(clean_freqs.items(), key=lambda x: x[1], reverse=True)[:50]
+        top_words = sorted(clean_freqs.items(), key=lambda x: x[1], reverse=True)[:50]
 
-            total_pages = len(self.data['visited_pages'])
-            total_subdomains = len(self.data['subdomains'])
-            most_visited_subdomains = sorted(
-                self.data['subdomains'].items(), key=lambda x: x[1], reverse=True
-                )[:10]
+        total_pages = len(self.data['visited_pages'])
+        total_subdomains = len(self.data['subdomains'])
+        most_visited_subdomains = sorted(
+            self.data['subdomains'].items(), key=lambda x: x[1], reverse=True
+            )[:10]
 
-            # Build report lines
-            lines = []
-            lines.append("SUMMARY\n")
-            lines.append(f"Total unique pages crawled: {total_pages}\n")
-            lines.append(f"Total unique subdomains: {total_subdomains}\n")
-            lines.append("Top 10 Subdomains:\n")
+        # Build report lines
+        lines = []
+        lines.append("SUMMARY\n")
+        lines.append(f"Total unique pages crawled: {total_pages}\n")
+        lines.append(f"Total unique subdomains: {total_subdomains}\n")
+        lines.append("Top 10 Subdomains:\n")
 
-            for sub, count in most_visited_subdomains:
-                lines.append(f"  - {sub}: {count} pages\n")
+        for sub, count in most_visited_subdomains:
+            lines.append(f"  - {sub}: {count} pages\n")
 
-            lines.append("\nTop 50 Words (filtered):\n")
+        lines.append("\nTop 50 Words (filtered):\n")
 
-            for word, count in top_words:
-                lines.append(f"  {word:<20} {count}\n")
+        for word, count in top_words:
+            lines.append(f"  {word:<20} {count}\n")
 
-            filename = f"total_summary.txt"
+        filename = f"total_summary.txt"
 
-            with open(filename, "w", encoding="utf-8") as f:
-                f.writelines(lines)
+        with open(filename, "w", encoding="utf-8") as f:
+            f.writelines(lines)
 
-            print(f"summary in total_summary.txt")
+        print(f"summary in total_summary.txt")
 
-        def __exit__(self):
-            self.compile_data()
+    def __exit__(self):
+        self.compile_data()
 
