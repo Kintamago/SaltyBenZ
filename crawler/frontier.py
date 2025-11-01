@@ -70,7 +70,6 @@ class Frontier(object):
             except IndexError:
                 return None
         
-
     def add_url(self, url):
         url = normalize(url)
         urlhash = get_urlhash(url)
@@ -85,6 +84,8 @@ class Frontier(object):
                 _, completed = self.save[urlhash]
                 if not completed:
                     return
+                
+
     def mark_url_complete(self, url):
         urlhash = get_urlhash(url)
         with self.lock:

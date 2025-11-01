@@ -19,7 +19,8 @@ class Worker(Thread):
         self.global_word_frequencies = dict()
         self.fingerprints = set()
         self.max_words = [0]
-
+        self.longest_page_url = None
+        
         # basic check for requests in scraper
         assert {getsource(scraper).find(req) for req in {"from requests import", "import requests"}} == {-1}, "Do not use requests in scraper.py"
         assert {getsource(scraper).find(req) for req in {"from urllib.request import", "import urllib.request"}} == {-1}, "Do not use urllib.request in scraper.py"

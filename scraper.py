@@ -4,6 +4,7 @@ import hashlib
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin, urldefrag
 from helper import stopwords, getFingerprint, getHammingDistance
+from threading import current_thread
 
 import threading
 import time
@@ -85,8 +86,13 @@ def extract_next_links(url, resp, global_word_frequencies, max_words, fingerprin
 
         fingerprints.add(fingerprint)
 
-        #Update the max_words if it is greater
-        max_words[0] = max(max_words[0], len(tokens))
+        
+        # Update the longest_page_url and max_words
+        if len(tokens) > max_words[0]:
+            max_words[0] = len(tokens)  
+            current = current_thread()                 
+            if hasattr(current, 'longest_page_url'):   
+                current.longest_page_url = url        
 
     except Exception as e:
         print(f"There was an error extracting from {url} : {e}")
@@ -121,6 +127,17 @@ def is_valid(url, seen_pages, seen_subdomains):
             seen_subdomains[subdomain] = seen_subdomains.get(subdomain, 0) + 1
         if page:
             seen_pages.add(page)
+
+        path_params = parsed.path.lower()
+        query_params = parsed.query.lower()
+        dynamic_scripts = ['doku.php', 'events', '~eppstein']
+
+        if any(script in path_params for script in dynamic_scripts):
+            print(f"DROPPED (dynamic script with params): {url}")
+            return False
+            
+        if any(param in query_params for param in ['ical=', 'outlook-ical=', 'google-calendar=', 'webcal=']):
+            return False
         
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
@@ -135,4 +152,5 @@ def is_valid(url, seen_pages, seen_subdomains):
     except TypeError:
         print ("TypeError for ", parsed)
         raise
+
 
