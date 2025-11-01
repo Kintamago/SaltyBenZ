@@ -70,7 +70,7 @@ class Worker(Thread):
                 )
 
             # merge pages
-            self.frontier.data["visited_pages"].union(self.seen_pages)
+            self.frontier.data["visited_pages"].update(self.seen_pages)
 
             # merge subdomains
             for sub, count in self.seen_subdomains.items():

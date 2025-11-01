@@ -187,7 +187,7 @@ class Frontier(object):
 
         top_words = sorted(clean_freqs.items(), key=lambda x: x[1], reverse=True)[:50]
 
-        total_pages = len(self.data['visited_pages'])
+        total_pages = self.data['visited_pages']
         total_subdomains = len(self.data['subdomains'])
         most_visited_subdomains = sorted(
             self.data['subdomains'].items(), key=lambda x: x[1], reverse=True
