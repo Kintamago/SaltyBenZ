@@ -135,7 +135,7 @@ class Frontier(object):
         if len(self.to_be_downloaded) == 0:
             time.sleep(1)
         while len(self.to_be_downloaded) != 0:
-            if j > 100:
+            if j > 105:
                 print("WE COULDN't FIND A GOOD LINK TO SEARCH")
                 return None
         
@@ -187,7 +187,7 @@ class Frontier(object):
 
         top_words = sorted(clean_freqs.items(), key=lambda x: x[1], reverse=True)[:50]
 
-        total_pages = self.data['visited_pages']
+        total_pages = len(self.seen)
         total_subdomains = len(self.data['subdomains'])
         most_visited_subdomains = sorted(
             self.data['subdomains'].items(), key=lambda x: x[1], reverse=True
