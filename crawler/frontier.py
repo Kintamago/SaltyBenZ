@@ -178,6 +178,10 @@ class Frontier(object):
         "max_words": [0],         # global max word count tracker
         '''
 
+        print(self.data['visited_pages'])
+        print(len(self.seen))
+        print(len(self.data['visited_pages']))
+
         clean_freqs = {
             word: count
             for word, count in self.data['word_freq'].items()
